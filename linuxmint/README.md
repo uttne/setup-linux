@@ -146,6 +146,13 @@ exit
 ssh ${username}@${ip}
 ```
 
+## 7. xrdp のインストール
+
+```bash
+sudo apt update
+sudo apt install -y xrdp
+```
+
 ## 7. CUDA のインストール
 
 以下のページにインストールコマンドがある
@@ -304,4 +311,22 @@ poetry --version
 
 # タブ補完を有効化
 poetry completions bash >> ~/.bash_completion
+
+# プロジェクトのフォルダに仮想環境を作成する
+poetry config virtualenvs.in-project true
+```
+
+
+poetryのよく使うコマンド
+
+```bash
+# 仮想環境の場所
+poetry env info --path
+
+# 仮想環境の一覧を表示する
+poetry env list
+
+# poetry env list で表示された現在の仮想環境を削除する
+poetry env remove $ENV
+
 ```
