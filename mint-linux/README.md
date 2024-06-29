@@ -8,11 +8,28 @@
 LANG=C xdg-user-dirs-update --force
 ```
 
+このコマンドを実行したら再起動をする
+
+```bash
+sudo shutdown -r now
+```
+
+再起動をすると以下のような画面が表示さるので「次から表示しない」にチェックをいれて「古い名前のままにする」を選択する。
+
+![](./img/Screenshot_from_2024-06-29_23-45-14.png)
+
+以下で変わっているかが確認できる
+```bash
+cat ~/.config/user-dirs.dirs
+```
+
 ## 2. ソフトウェアソースの変更
 
-メインを変更する
+メインを以下に変更する。
 
-[]()
+`https://mirrors.cicku.me/linuxmint/packages`
+
+![](./img/Screenshot_from_2024-06-30_00-25-48.png)
 
 ## 3. apt update 6 upgrade
 
@@ -56,7 +73,75 @@ nmcli connection down "$CONNECTION_NAME" && nmcli connection up "$CONNECTION_NAM
 
 
 
-## 2. SSH の設定
+## 6. SSH の設定
 
 ```bash
 sudo apt -y install openssh-server
+```
+
+クライアントにて以下で接続する。  
+この時パスワードによる接続をする。
+
+```bash
+ssh ${username}@${ip}
+```
+
+以下のようなエラーが発生した場合
+
+```text
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@    WARNING: REMOTE HOST IDENTIFICATION HAS CHANGED!     @
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+IT IS POSSIBLE THAT SOMEONE IS DOING SOMETHING NASTY!
+Someone could be eavesdropping on you right now (man-in-the-middle attack)!
+It is also possible that a host key has just been changed.
+The fingerprint for the ED25519 key sent by the remote host is
+SHA256:${xxxx}.
+Please contact your system administrator.
+Add correct host key in ${xxxx} to get rid of this message.
+Offending ED25519 key in ${xxxx}
+Host key for ${ip} has changed and you have requested strict checking.
+Host key verification failed.
+```
+
+以下のコマンドを実行して削除する。
+
+```bash
+ssh-keygen -R ${ip}
+```
+
+公開鍵暗号方式に変更する。
+
+```bash
+# クライアント側
+cd ~
+scp ./.ssh/id_ecdsa.pub ${username}@${ip}:~/
+ssh ${username}@${ip}
+mkdir -p ~/.ssh
+
+# ここからサーバー側
+cat ~/id_ecdsa.pub >> ~/.ssh/authorized_keys
+chmod 700 ~/.ssh
+chmod 600 ~/.ssh/authorized_keys
+rm ~/id_ecdsa.pub
+
+sudo nano /etc/ssh/sshd_config
+```
+
+とりあえず以下だけ設定
+
+```config
+PasswordAuthentication no
+PermitEmptyPasswords no
+```
+
+```bash
+sudo service sshd restart
+# ssh を出る
+exit
+```
+
+```bash
+# クライアント側でもう一度は入れるか確認
+ssh ${username}@${ip}
+```
