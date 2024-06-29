@@ -52,7 +52,7 @@ echo "Connection name for device '$DEVICE_NAME' is '$CONNECTION_NAME'."
 # ip の設定
 nmcli connection modify "$CONNECTION_NAME" ipv4.addresses $IP_ADDRESS/24
 nmcli connection modify "$CONNECTION_NAME" ipv4.gateway $DEFAULT_GATEWAY
-nmcli connection modify "$CONNECTION_NAME" ipv4.method mamual
+nmcli connection modify "$CONNECTION_NAME" ipv4.method manual
 
 # DNS の設定
 nmcli connection modify "$CONNECTION_NAME" ipv4.dns "8.8.8.8 8.8.4.4"
