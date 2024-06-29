@@ -6,6 +6,8 @@ DEFAULT_GATEWAY=$3
 
 # デバイス名が指定されていない場合、ユーザーに入力を促す
 if [ -z "$DEVICE_NAME" ]; then
+    # 入力候補のために表示をしておく
+    nmcli device
     read -p "Please enter the device name: " DEVICE_NAME
 fi
 
