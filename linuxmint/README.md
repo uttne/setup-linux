@@ -145,3 +145,163 @@ exit
 # クライアント側でもう一度は入れるか確認
 ssh ${username}@${ip}
 ```
+
+## 7. CUDA のインストール
+
+以下のページにインストールコマンドがある
+
+[CUDA Toolkit 12.1 Downloads](https://developer.nvidia.com/cuda-downloads?target_os=Linux&target_arch=x86_64&Distribution=Ubuntu&target_version=22.04&target_type=deb_network)
+
+### Base Installer
+
+CUDA Toolkit のインストール
+
+```bash
+wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64/cuda-keyring_1.1-1_all.deb
+sudo dpkg -i cuda-keyring_1.1-1_all.deb
+sudo apt update
+# PyTorch を使用するため 12.1 をインストールする(2024-06-30)
+sudo apt -y install cuda-toolkit-12-1
+```
+
+### Driver Installer
+
+Driver のインストール
+
+安定を求める場合は legacy kernel module flavor を選択し、オープンで先進的なものを求める場合は open kernel module flavor をインストールする。
+
+ここでは legacy kernel module flavor をインストールする。
+
+```bash
+sudo apt install -y cuda-drivers
+```
+
+### 環境変数の設定
+
+[1. Introduction — Installation Guide for Linux 12.5 documentation](https://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html#environment-setup)
+
+以下を `~/.bashrc` に追加する
+
+```bash
+nano ~/.bashrc
+```
+
+```bash
+export PATH=/usr/local/cuda-12.1/bin${PATH:+:${PATH}}
+# 64bit OS用
+export LD_LIBRARY_PATH=/usr/local/cuda-12.1/lib64${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}
+```
+
+* `${PATH:+:${PATH}}` という書き方は `PATH` が存在しないときに空文字となる指定の方法
+
+```bash
+source ~/.bashrc
+```
+
+```bash
+# インストールが終わったら一度再起動する
+sudo shutdown -r now
+```
+
+インストールが完了しているか確認
+
+```bash
+nvcc --version
+sudo nvidia-smi
+```
+
+
+## Python
+
+### Pyenv のインストール
+
+[GitHub - pyenv/pyenv: Simple Python version management](https://github.com/pyenv/pyenv/tree/master?tab=readme-ov-file#basic-github-checkout)
+
+```bash
+git clone https://github.com/pyenv/pyenv.git ~/.pyenv
+# これはどっちでもいい
+cd ~/.pyenv && src/configure && make -C src
+```
+
+環境変数の設定は以下になるので `~/.bashrc` に設定する。
+
+```bash
+echo 'export PYENV_ROOT="$HOME/.pyenv"' >> ~/.bashrc
+echo 'command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"' >> ~/.bashrc
+echo 'eval "$(pyenv init -)"' >> ~/.bashrc
+source ~/.bashrc
+```
+
+pyenv でインストールをする場合は build の依存関係を解決する必要があるため以下のパッケージもインストールする。
+
+[Home](https://github.com/pyenv/pyenv/wiki#suggested-build-environment)
+
+```bash
+sudo apt update; sudo apt -y install build-essential libssl-dev zlib1g-dev \
+libbz2-dev libreadline-dev libsqlite3-dev curl git \
+libncursesw5-dev xz-utils tk-dev libxml2-dev libxmlsec1-dev libffi-dev liblzma-dev
+```
+
+以下のコマンドでインストールが完了しているか確認する。
+```bash
+pyenv --version
+pyenv install --list
+```
+
+pyenv を更新するための便利コマンドがあるのでついでにインストールをしておく。
+
+```bash
+git clone https://github.com/pyenv/pyenv-update.git $(pyenv root)/plugins/pyenv-update
+```
+
+以下を実行することで更新される。
+
+```bash
+pyenv update
+```
+
+[コマンドリファレンス](https://github.com/pyenv/pyenv/blob/master/COMMANDS.md#command-reference)
+
+
+### Python のインストール
+
+とりあえず最新をインストールしておく。
+
+```bash
+pyenv install 3.12.4
+pyenv global 3.12.4
+pyenv rehash
+
+# 以下のコマンドでインストールできているかを確認
+python --version
+```
+
+### pipx のインストール
+
+pipx は独立したアプリケーションやツールのインストールや管理に便利なツール。
+
+[GitHub - pypa/pipx: Install and Run Python Applications in Isolated Environments](https://github.com/pypa/pipx?tab=readme-ov-file#on-linux)
+
+```bash
+sudo apt update
+sudo apt install -y pipx
+
+# ~/.local/bin のパスを .bashrc に追加
+pipx ensurepath
+source ~/.bashrc
+```
+
+### Poetry のインストール
+
+Pipenv よりも管理機能が豊富で早い仮想環境管理ツール。
+
+[Introduction | Documentation | Poetry - Python dependency management and packaging made easy](https://python-poetry.org/docs/#installation)
+
+```bash
+pipx install poetry
+# 以下でインストールされたことを確認
+poetry --version
+
+# タブ補完を有効化
+poetry completions bash >> ~/.bash_completion
+```
