@@ -21,6 +21,7 @@ pip install torch torchvision torchaudio --index-url https://download.pytorch.or
 sudo apt update
 sudo apt -y install google-perftools libgoogle-perftools-dev
 
+# ***このパスにミスがあるといろいろなツールが動かなくなるので注意***
 echo 'export LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libtcmalloc.so' >> ~/.bashrc
 source ~/.bashrc
 
